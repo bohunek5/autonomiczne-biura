@@ -1,0 +1,88 @@
+<!doctype html><html lang="pl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-MM7kSacCAO7mOu8Wqfb2CjQRGvgYDTLrwugbby2c2qk='; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"><title>Autonomiczne biura · E-Site</title><style>
+:root{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#243b31;background:#f6f8f2}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.6;cursor:wait}button,a,input{outline-offset:4px}a{color:#406d4a;text-decoration:none}header{padding:25px 5vw;border-bottom:1px solid #dce5d5;display:flex;align-items:center;justify-content:space-between}header strong{letter-spacing:.14em;font-size:13px}header span{color:#7d8b73;font-size:11px}.lock{display:none;border:0;background:none;color:#537443;padding:10px;font-size:12px}main{max-width:1280px;margin:0 auto;padding:65px 40px 50px}h1{font-size:clamp(31px,4vw,52px);font-weight:550;letter-spacing:-1.8px;margin:0 0 20px}h2{font-size:28px;font-weight:580;letter-spacing:-.8px;margin:0 0 10px}p{font-size:14px;line-height:1.7;color:#7b8b70;max-width:680px}small{color:#8b997f;font-size:11px}.login{width:min(100%,370px);margin:45px 0 90px}label{display:block;font-size:12px;color:#657d57;margin-bottom:10px}input{display:block;width:100%;padding:14px;border:1px solid #cbd9bf;border-radius:3px;margin-bottom:15px;background:#fff;color:#263d30}.primary{background:#2c593d;color:white;border:0;border-radius:3px;padding:13px 22px;font-size:12px;width:100%;text-align:left}.error{color:#ad4f3c;font-size:12px;min-height:18px;line-height:1.6}.offices{margin-top:45px}.office{border-top:1px solid #d9e3d0;display:grid;grid-template-columns:1fr 1fr;gap:50px;padding:37px 0}.office>div,.download>span{min-width:0}.office h2,.office p,.download,.login-info,.links a{overflow-wrap:anywhere}.download .arrow{flex-shrink:0}.office .eyebrow{letter-spacing:.12em;font-size:10px;font-weight:650;color:#8d997f;margin-bottom:12px}.office p{font-size:13px;margin:14px 0 20px}.status{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#6e875d;background:#edf2e6;padding:7px 9px}.status:before{content:'';height:5px;width:5px;border-radius:50%;background:#8da271}.links{display:flex;flex-wrap:wrap;gap:15px;font-size:12px;margin:22px 0}.login-info{border-left:2px solid #afbd9b;padding-left:13px;font-size:11px;color:#859677;line-height:1.8;white-space:pre-wrap}.downloads{display:flex;flex-direction:column;justify-content:start;gap:0}.download{display:flex;text-align:left;align-items:center;gap:15px;justify-content:space-between;background:none;border:0;border-bottom:1px solid #e0e8d8;padding:17px 0;color:#35543e;font-size:13px}.download small{display:block;font-size:10px;margin-top:6px}.download .arrow{font-size:20px;color:#6e8a5f}.progress{font-size:11px;line-height:1.5;color:#789264;min-height:17px;padding-top:10px}.foot{margin-top:50px;padding-top:20px;border-top:1px solid #dce5d5;display:flex;justify-content:space-between;gap:25px;font-size:10px;color:#8d997f}#content{display:none}.busy{pointer-events:none;opacity:.7}@media(max-width:700px){header{padding:23px 24px}header span{display:none}main{padding:42px 24px}.office{grid-template-columns:1fr;gap:15px;padding:28px 0}h1{letter-spacing:-1px;font-size:36px}.offices{margin-top:35px}.foot{flex-direction:column;gap:10px}.login{margin:35px 0 55px}h2{font-size:27px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body><header><strong>E-SITE</strong><span>Karol Bohdanowicz · Autonomiczne biura</span><button class="lock" id="lock" type="button">Zablokuj dostęp ↗</button></header><main><section id="gate"><h1>Autonomiczne biura.</h1><p>Wejdź do pakietów, instrukcji i adresów biur.</p><form class="login" id="login"><label for="password">Hasło dostępu</label><input id="password" type="password" autocomplete="current-password" required minlength="8"><button class="primary" id="enter">Otwórz materiały →</button><div class="error" id="error" role="alert"></div></form></section><section id="content"><h1>Wybierz swoje biuro.</h1><p id="intro"></p><div class="offices" id="offices"></div></section><footer class="foot"><span>Stworzył i opracował Karol Bohdanowicz · E-Site</span><span>Instrukcje i pakiety do samodzielnego uruchomienia</span></footer></main><script>
+const config={"salt":"I6Xet7z+RGtBetZdfrZD3A==","iterations":600000};
+let key=null,epoch=0,lastActivity=Date.now();
+const controllers=new Set(),writables=new Set(),objectUrls=new Set();
+const MAX_FALLBACK_BYTES=256*1024*1024;
+const $=id=>document.getElementById(id);
+const text=(tag,value,cls)=>{const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;return el};
+function active(session){if(epoch!==session)throw new DOMException('Dostęp został zablokowany.','AbortError')}
+function safeUrl(value){try{const u=new URL(value);return !u.username&&!u.password&&(u.protocol==='https:'||(u.protocol==='http:'&&['127.0.0.1','localhost','[::1]'].includes(u.hostname)))?u.href:null}catch{return null}}
+async function decryptFile(name,sessionKey,signal){
+ if(!/^(?:catalog|[a-f0-9]{30})\.bin$/.test(name))throw Error('Nieprawidłowy plik.');
+ const r=await fetch(name,{cache:'no-store',signal});if(!r.ok)throw Error('Nie udało się pobrać pliku.');
+ const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length<28)throw Error('Niepełny plik.');
+ return crypto.subtle.decrypt({name:'AES-GCM',iv:bytes.subarray(0,12),additionalData:new TextEncoder().encode(name)},sessionKey,bytes.subarray(12));
+}
+function lock(){
+ epoch++;key=null;
+ for(const c of controllers)c.abort();controllers.clear();
+ for(const writer of writables)Promise.resolve(writer.abort()).catch(()=>{});writables.clear();
+ for(const url of objectUrls)URL.revokeObjectURL(url);objectUrls.clear();
+ $('offices').replaceChildren();$('intro').textContent='';$('content').style.display='none';$('gate').style.display='block';$('lock').style.display='none';$('password').value='';$('error').textContent='';$('enter').disabled=false;
+}
+$('lock').onclick=lock;
+for(const event of ['pointerdown','keydown'])document.addEventListener(event,()=>lastActivity=Date.now(),{passive:true});
+setInterval(()=>{if(key&&Date.now()-lastActivity>15*60*1000)lock()},15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&key&&Date.now()-lastActivity>15*60*1000)lock()});
+window.addEventListener('pagehide',lock);
+window.addEventListener('pageshow',event=>{if(event.persisted)lock()});
+function render(catalog){
+ $('intro').textContent=catalog.intro;
+ for(const office of catalog.offices){
+  const row=text('article','','office'),left=document.createElement('div'),right=text('div','','downloads');
+  left.append(text('div',office.for,'eyebrow'),text('h2',office.name),text('span',office.status,'status'),text('p',office.description));
+  const links=text('div','','links');
+  for(const link of office.links||[]){const url=safeUrl(link.url);if(!url)continue;const a=text('a',link.label+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';links.append(a)}
+  left.append(links,text('div',office.login,'login-info'));
+  for(const file of office.downloads){
+   const btn=text('button','','download');btn.type='button';
+   const label=text('span',file.label);label.append(text('small',file.filename+' · '+(file.bytes/1024/1024).toFixed(1)+' MB'));
+   btn.append(label,text('span','↓','arrow'));const progress=text('div','','progress');progress.setAttribute('role','status');
+   btn.onclick=()=>download(file,btn,progress);right.append(btn,progress);
+  }
+  row.append(left,right);$('offices').append(row);
+ }
+}
+async function download(file,btn,progress){
+ const session=epoch,sessionKey=key;if(!sessionKey)return;
+ const controller=new AbortController();controllers.add(controller);btn.disabled=true;
+ let writer=null;
+ try{
+  if(file.bytes>32*1024*1024&&typeof window.showSaveFilePicker==='function'){
+   const handle=await window.showSaveFilePicker({suggestedName:file.filename});active(session);
+   writer=await handle.createWritable();writables.add(writer);active(session);
+  }else if(file.bytes>MAX_FALLBACK_BYTES){const error=Error();error.code='fallback_limit';throw error}
+  const parts=[];let received=0;
+  for(let i=0;i<file.parts.length;i++){
+   active(session);progress.textContent='Pobieranie '+Math.round(i/file.parts.length*100)+'%';
+   const bytes=await decryptFile(file.parts[i],sessionKey,controller.signal);active(session);
+   received+=bytes.byteLength;if(received>file.bytes)throw Error('Nieprawidłowy rozmiar pliku.');
+   if(writer)await writer.write(new Uint8Array(bytes));else parts.push(bytes);
+  }
+  active(session);if(received!==file.bytes)throw Error('Niepełny plik.');
+  if(writer){const completed=writer;await completed.close();writables.delete(completed);writer=null;active(session)}
+  else{
+   const blob=new Blob(parts,{type:file.mime||'application/octet-stream'}),url=URL.createObjectURL(blob);objectUrls.add(url);
+   const a=document.createElement('a');a.href=url;a.download=file.filename;document.body.append(a);a.click();a.remove();
+   setTimeout(()=>{URL.revokeObjectURL(url);objectUrls.delete(url)},60000);
+  }
+  progress.textContent='Plik gotowy. SHA-256: '+file.sha256.slice(0,16)+'…';lastActivity=Date.now();
+ }catch(e){
+  if(writer){writables.delete(writer);await writer.abort().catch(()=>{})}
+  if(epoch===session)progress.textContent=e.code==='fallback_limit'?'Ten plik wymaga zapisu bezpośrednio na dysk. Otwórz stronę w Chrome lub Edge na komputerze.':e.name==='AbortError'?'Pobieranie anulowane.':'Nie udało się pobrać całości. Spróbuj ponownie.';
+ }finally{controllers.delete(controller);if(epoch===session)btn.disabled=false}
+}
+$('login').onsubmit=async event=>{
+ event.preventDefault();$('error').textContent='';$('enter').disabled=true;
+ const session=++epoch,controller=new AbortController();controllers.add(controller);
+ try{
+  const material=await crypto.subtle.importKey('raw',new TextEncoder().encode($('password').value),'PBKDF2',false,['deriveKey']);$('password').value='';
+  const derived=await crypto.subtle.deriveKey({name:'PBKDF2',salt:Uint8Array.from(atob(config.salt),c=>c.charCodeAt(0)),iterations:config.iterations,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['decrypt']);active(session);
+  const catalog=JSON.parse(new TextDecoder().decode(await decryptFile('catalog.bin',derived,controller.signal)));active(session);
+  $('offices').replaceChildren();render(catalog);key=derived;lastActivity=Date.now();$('gate').style.display='none';$('content').style.display='block';$('lock').style.display='block';
+ }catch{if(session===epoch)$('error').textContent='Nie udało się otworzyć materiałów. Sprawdź hasło i połączenie.'}
+ finally{controllers.delete(controller);if(session===epoch)$('enter').disabled=false}
+};
+</script></body></html>
